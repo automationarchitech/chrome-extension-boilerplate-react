@@ -3,15 +3,34 @@ import logo from '../../assets/img/logo.svg';
 import Greetings from '../../containers/Greetings/Greetings';
 import './Popup.css';
 
+// import { PuppeteerWebBaseLoader } from "langchain/document_loaders/web/puppeteer";
+// import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+// import { Document } from "langchain/document";
+
 const Popup = () => {
     const [count, setCount] = useState(0);
     const [currentUrl, setCurrentUrl] = useState('');
     const [result, setResult] = useState('');
+    const [processedUrl, setProcessedUrl] = useState('');
+
+    // // Create a function that allows langchain to go and fetch the data
+    // const getUrlDoc = async () => {
+    //     if (currentUrl) {
+    //         const loader = new PuppeteerWebBaseLoader(currentUrl);
+    //         const docs = await loader.load();
+    //         console.log(docs);
+    //         setUrlDocOutput(JSON.stringify(docs)); // Update the urlDocOutput state with the output of getUrlDoc
+    //     } else {
+    //         console.error("Current URL is undefined");
+    //     }
+    // };
 
     const processUrl = (url) => {
-        // Your business logic here
-        const processedResult = "Processed: " + url;
-        setResult(processedResult);
+        // send a message to the background script requesting URL processing
+        chrome.runtime.sendMessage({ type: 'processUrl', url }, (response) => {
+            // handle the response (replace this with your own response handling logic)
+            setProcessedUrl(response.processedUrl);
+        });
     };
 
     useEffect(() => {
@@ -39,6 +58,9 @@ const Popup = () => {
                     </p>
                     <div className="current-url">
                         Current URL: {currentUrl}
+                    </div>
+                    <div className="processed-url">
+                        Processed URL: {processedUrl}
                     </div>
                     <div className="processed-result">
                         Processed Result: {result}
